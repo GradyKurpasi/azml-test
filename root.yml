@@ -1,0 +1,4 @@
+name: ProgramData
+channels:
+  - defaults
+prefix: C:\Users\gkurp\.conda\envs\ProgramData
