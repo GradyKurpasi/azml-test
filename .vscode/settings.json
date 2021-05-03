@@ -1,3 +1,4 @@
 {
-    "python.pythonPath": "C:\\Users\\gkurp\\.conda\\envs\\AzurePytorch\\python.exe"
+    "python.pythonPath": "C:\\Users\\gkurp\\.conda\\envs\\AzurePytorch\\python.exe",
+    "ai.azureml.defaultWorkspaceId": "/subscriptions/64c7fe17-2a05-4aed-ac0a-b82f18a992da/resourceGroups/Testing/providers/Microsoft.MachineLearningServices/workspaces/AzureML-Pytorch"
 }
