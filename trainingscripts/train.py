@@ -27,6 +27,8 @@ parser.add_argument("--num-epochs", type=int, dest="num_epochs", help="Number of
 args = parser.parse_args()
 data_path = args.data_folder
 num_epochs = args.num_epochs
+print('********DATA PATH: ', data_path)
+print(':***********')
 
 ### Prepare the dataset
 data_transforms = {
@@ -45,6 +47,8 @@ data_transforms = {
 }
 
 image_datasets = {x: datasets.ImageFolder(os.path.join(data_path, x), data_transforms[x]) for x in ['train', 'val']}
+print('********** OS PATH: ', os.path.join(data_path, 'train'))
+print(':***********')
 dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4, shuffle=True, num_workers=4) for x in ['train', 'val']}
 dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
 class_names = image_datasets['train'].classes
