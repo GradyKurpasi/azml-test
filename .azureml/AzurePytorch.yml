@@ -1,4 +1,4 @@
-name: AzureML
+name: AzurePytorch
 channels:
   - pytorch
   - defaults
@@ -162,4 +162,4 @@ dependencies:
     - webencodings==0.5.1
     - websocket-client==0.58.0
     - widgetsnbextension==3.5.1
-prefix: C:\Users\gkurp\.conda\envs\AzureML
+prefix: C:\Users\gkurp\.conda\envs\AzurePytorch

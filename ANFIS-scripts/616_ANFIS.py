@@ -50,12 +50,14 @@ import argparse
 
 dtype = torch.float
 
+
+### AZUREML SDK STUFF - comment out for local runs
 parser = argparse.ArgumentParser()
 parser.add_argument("--data-folder", type=str, dest="data_folder", help="data folder mounting point", default="")
 parser.add_argument("--num-epochs", type=int, dest="num_epochs", help="Number of epochs", default="")
 args = parser.parse_args()
 data_path = args.data_folder
-#num_epochs = args.num_epochs
+num_epochs = args.num_epochs
 
 
 def MakeData():
@@ -123,22 +125,15 @@ trainRMSE = 99
 lastRMSE = 100
 testRMSE = 99
 epochs = 0
-while (testRMSE < lastRMSE) and epochs < 10000:
-    with open('output.txt', 'a') as f:
-        f.write('TRAINING RMS error={:.5f}'.format(trainRMSE))
-        f.write('\n')
-        f.write('TEST RMS error={:.5f}'.format(testRMSE))
-        f.write('\n')
-        f.write('\n')
-        f.write(str(anfModel.layer.fuzzify.__repr__))
-        f.write('\n')
-        f.write('\n')
-        f.write(str(anfModel.layer.consequent.coeff))
-        f.write('\n')
-        f.write('\n')
-    trainRMSE = train_anfis(anfModel, dlTrain, 500, show_plots=False)
-    lastRMSE = testRMSE
-    testRMSE = test_anfis(anfModel, dlTest)
+# while (testRMSE < lastRMSE) and epochs < 10000:
+
+
+trainRMSE = train_anfis(anfModel, dlTrain, num_epochs, show_plots=False)
+
+# validation not being conducted
+# ANFIS not as susceptible to overfitting as plain MLP
+# lastRMSE = testRMSE
+# testRMSE = test_anfis(anfModel, dlTest, show_plots=False)
 
 
 print('done')
