@@ -135,5 +135,7 @@ trainRMSE = train_anfis(anfModel, dlTrain, num_epochs, show_plots=False)
 # lastRMSE = testRMSE
 # testRMSE = test_anfis(anfModel, dlTest, show_plots=False)
 
+# Save the model
+torch.save(anfModel, './outputs/model.pth')
 
 print('done')
