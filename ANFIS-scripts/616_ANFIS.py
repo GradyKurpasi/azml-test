@@ -2,6 +2,37 @@
     ANFIS Prototype in Pytorch
     SSIE 616 project Phase 3
     based on ANFIS in torch by James Power
+
+These scripts have been modified to run on Azure
+
+All training scripts are stored locally in ./ANFIS-scripts/
+These scripts will be wrapped in a container by Script Run Config below 
+Training scripts will be published to the VM 
+   616_ANFIS.py (training script)
+   anfis.py (defines ANFIS model)
+   membership.py (membership functions)
+   experimental.py (controls experiments)
+
+Training scripts can be written in pure python/pytorch
+Training scripts do not need to reference the azureml sdk
+BUT training scripts will have to access the azureml sdk to conduct logging
+   from azureml.core import Run
+   run = Run.get_context()  ### Add run context for AML
+   run.log("{} Loss".format(phase), np.float(epoch_loss))
+   run.log("{} Acc".format(phase), np.float(epoch_acc))
+
+arguments can be passed to training script 
+they have to be parsed in the training script
+   import argparse
+   parser = argparse.ArgumentParser()
+   parser.add_argument("--data-folder", type=str, dest="data_folder", help="data folder mounting point", default="")
+   parser.add_argument("--num-epochs", type=int, dest="num_epochs", help="Number of epochs", default="")
+   args = parser.parse_args()
+   data_path = args.data_folder
+
+The file mounts for datasets in the VM will be (something like)
+   data_path = /mnt/batch/tasks/shared/LS_root/jobs/azureml-pytorch/azureml/ANFIS-pytorch_1620012816_f08ea422/wd/tmpjdv3v5lk/
+
 """
 
 import sys
@@ -15,8 +46,17 @@ from torch.utils.data import TensorDataset, DataLoader
 import anfis
 from membership import BellMembFunc, make_bell_mfs
 from experimental import train_anfis, test_anfis
+import argparse
 
 dtype = torch.float
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--data-folder", type=str, dest="data_folder", help="data folder mounting point", default="")
+parser.add_argument("--num-epochs", type=int, dest="num_epochs", help="Number of epochs", default="")
+args = parser.parse_args()
+data_path = args.data_folder
+#num_epochs = args.num_epochs
+
 
 def MakeData():
     """quick pre processing of DataToBeModeled.csv
@@ -24,16 +64,17 @@ def MakeData():
        and pushed into Pytorch formats"""
 
     #read data into pandas dataframe for preprocessing
-    df = pd.read_csv('Data to be Modeled with ANFIS.csv')
+    filename = os.path.join(data_path, 'ANFIS.csv')
+    df = pd.read_csv(filename)
 
     #X is a 2D array, Y is a 1D array
     X = np.array(df[['X1', 'X2']])
     Y = np.array(df['Y'])
-    #RESHAPE IS NECESSARY OR CRITERION EXPERIENCES BROADCAST ERRORS WHEN COMPUTING LOSS IN EXPERIMENTAL.PY 137
+    #RESHAPE IS NECESSARY OR CRITERION FUNCTION EXPERIENCES BROADCAST ERRORS WHEN COMPUTING LOSS IN EXPERIMENTAL.PY 137
     Y = Y.reshape(442,1)
 
-    #slice X, Y, 2/3 of data goes to train, 1/3 goes to test
-    #slices taken with [:,] notation
+    #slice data, 2/3 of data goes to train, 1/3 goes to test
+    #slices taken from X, Y with [:,] notation
     #data cast into tensors to be passed to torch functions below
     Xtrain = torch.tensor(X[:295, ...], dtype = torch.float)
     # Ytrain = torch.from_numpy(Y)
@@ -81,7 +122,8 @@ anfModel = MakeModel()
 trainRMSE = 99
 lastRMSE = 100
 testRMSE = 99
-while testRMSE < lastRMSE:
+epochs = 0
+while (testRMSE < lastRMSE) and epochs < 10000:
     with open('output.txt', 'a') as f:
         f.write('TRAINING RMS error={:.5f}'.format(trainRMSE))
         f.write('\n')
